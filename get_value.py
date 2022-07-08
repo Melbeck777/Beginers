@@ -33,6 +33,8 @@ def parse_date_time(date_str):
                     now_format += element[(bit >> index) & 1]
                     if(index < now_len):
                         now_format += now[index]
+                else:
+                    break
                 if(index == now_len):
                     print(now_format)
                     if(get_date_time(date_str,now_format) == True):
@@ -41,5 +43,5 @@ def parse_date_time(date_str):
                         return datetime.strftime(res_data,answer_type)
     return False
 
-test = "2020510"
+test = "2020/5/10"
 print(parse_date_time(test))
