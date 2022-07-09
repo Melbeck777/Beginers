@@ -1,7 +1,9 @@
-from datetime import date, datetime
+from datetime import datetime
 import locale
-from time import time
 
+
+########################################################
+# Get date time information
 def Get_date_time(date_str,date_format):
     try:
         res_date = datetime.strptime(date_str,date_format)
@@ -10,11 +12,13 @@ def Get_date_time(date_str,date_format):
         return False
 
 # 曜日を除外した日付の文字列を生成
-def separate_and_connect(date_str):
+def to_easy_date(date_str):
     first_separate = date_str.split("(")
     second_separate = first_separate[1].split(")")
-    res = first_separate[0][:-1]+second_separate[1]
-    print("res date = {}".format(res))
+    it = len(first_separate[0])-1
+    while(first_separate[0][it-1] != "日" and first_separate[0][it].isnumeric() == False and it > 0):
+        it -= 1
+    res = first_separate[0][:it]+" "+second_separate[1]
     return res
 
 def answer_type_date(date_str,date_format):
@@ -25,7 +29,6 @@ def answer_type_date(date_str,date_format):
     return res
 
 def Get_date_format(date_separates):
-    # print("{}, {}".format(date_separates,len(date_separates)))
     year = ["%y", "%Y"]
     month = ["%m"]
     day = ["%d"]
@@ -38,7 +41,6 @@ def Get_date_format(date_separates):
             now_format = ""
             for index, element in enumerate(date_format):
                 element_access = (bit << index) & 1
-                # print("{} < {}".format(element_access,len(element)))
                 if(element_access < len(element)):
                     now_format += element[element_access]
                     if(index < now_len):
@@ -51,14 +53,12 @@ def Get_date_format(date_separates):
     return res
 
 def Get_time_format(time_separates):
-    # print("{}, {}".format(time_separates,len(time_separates)))
     hour = ["%H"]
     minute = ["%M"]
     time_format = [hour,minute]
     res = []
     for now_index, now_element in enumerate(time_separates):
         now_len = int(len(now_element))
-        # print(now_len)
         for bit in range(2**now_len):
             now_format = ""
             flag = True
@@ -85,12 +85,9 @@ def Get_english_date(date_str):
     date_formats = Get_date_format(date_separates)
     time_separates = [[":"]]
     time_formats = Get_time_format(time_separates)
-    # print("english date formats = {}".format(date_formats))
-    # print("english time formats = {}".format(time_formats))
     for now_date in date_formats:
         for now_time in time_formats:
-            now_format = now_date+now_time
-            # print("now_format = {}".format(now_format))
+            now_format = now_date+" "+now_time
             if(Get_date_time(date_str,now_format) == True):
                 return answer_type_date(date_str,now_format)
     return False
@@ -103,22 +100,29 @@ def Get_japanese_date(date_str):
     time_separates = [["時","分"]]
     date_formats = Get_date_format(date_separates)
     time_formats = Get_time_format(time_separates)
-    # print("date_formats = {}".format(date_formats))
-    # print("time_formats = {}".format(time_formats))
     for now_date in date_formats:
         for now_time in time_formats:
-            now_format = now_date+now_time
+            now_format = now_date+" "+now_time
             if(Get_date_time(date_str,now_format) == True):
                 return answer_type_date(date_str,now_format)
     return False
 
 def parse_date_time(date_str):
-    easy_date = separate_and_connect(date_str)
+    easy_date = to_easy_date(date_str)
     res = Get_english_date(easy_date)
     if(res == False):
         return Get_japanese_date(easy_date)
     else:
         return res
+########################################################
+
+# # Get price of item.
+# def get_price(price_str):
+
+
+
+
+
 # タスク
 #   金額，個数，店名の取得
 #   処理の結果をどう返せばいいのか？
