@@ -1,6 +1,9 @@
 from datetime import datetime
 import locale
+from pathlib import Path
+import sys
 
+import scipy as sp
 
 ########################################################
 # Get date time information
@@ -14,11 +17,25 @@ def Get_date_time(date_str,date_format):
 # 曜日を除外した日付の文字列を生成
 def to_easy_date(date_str):
     first_separate = date_str.split("(")
+    if(len(first_separate) < 2):
+        return False
     second_separate = first_separate[1].split(")")
-    it = len(first_separate[0])-1
-    while(first_separate[0][it-1] != "日" and first_separate[0][it].isnumeric() == False and it > 0):
-        it -= 1
-    res = first_separate[0][:it]+" "+second_separate[1]
+    second_space_separate = second_separate[1].split(" ")
+    first_space_split = first_separate[0].split(" ")
+    date_type = ""
+    for it in first_space_split:
+        date_type += it
+    second_start = 0
+    if(len(second_space_separate) > 1):
+        while(second_start < len(second_space_separate[1]) and second_space_separate[1][second_start].isnumeric() == False):
+            second_start += 1
+    first_start = 0
+    while(first_start < len(date_type) and date_type[first_start].isnumeric() == False):
+        first_start += 1
+    res = date_type[first_start:]
+    if(len(second_space_separate) > 1):
+        if(len(second_space_separate[1][second_start:]) > 0):
+            res += " "+second_space_separate[1][second_start:]
     return res
 
 def answer_type_date(date_str,date_format):
@@ -90,6 +107,8 @@ def Get_english_date(date_str):
             now_format = now_date+" "+now_time
             if(Get_date_time(date_str,now_format) == True):
                 return answer_type_date(date_str,now_format)
+            elif(Get_date_time(date_str,now_date)  == True):
+                return answer_type_date(date_str,now_date)
     return False
 
 def Get_japanese_date(date_str):
@@ -97,7 +116,10 @@ def Get_japanese_date(date_str):
     date_separates = [
         ["年","月","日"],
     ]
-    time_separates = [["時","分"]]
+    time_separates = [
+        ["時","分"],
+        [":"]
+    ]
     date_formats = Get_date_format(date_separates)
     time_formats = Get_time_format(time_separates)
     for now_date in date_formats:
@@ -105,10 +127,15 @@ def Get_japanese_date(date_str):
             now_format = now_date+" "+now_time
             if(Get_date_time(date_str,now_format) == True):
                 return answer_type_date(date_str,now_format)
+            elif(Get_date_time(date_str,now_date) == True):
+                return answer_type_date(date_str,now_date)
     return False
+
 
 def parse_date_time(date_str):
     easy_date = to_easy_date(date_str)
+    if(easy_date == False):
+        return False
     res = Get_english_date(easy_date)
     if(res == False):
         return Get_japanese_date(easy_date)
@@ -116,7 +143,7 @@ def parse_date_time(date_str):
         return res
 ########################################################
 
-# # Get price of item.
+# # # Get price of item.
 # def get_price(price_str):
 
 
@@ -128,7 +155,18 @@ def parse_date_time(date_str):
 #   処理の結果をどう返せばいいのか？
 #   結果をどういう形にして保存するか
 
+
+test_dir_path  = "C:\\Python\\event\\supporters\\hackson\\vol_5\\Beginners\\Beginers\\result"
+
+end = 10
+
+for it in Path(test_dir_path).glob("*"):
+    with open(it,"r") as f:
+        reader = f.read().split("\n")
+        for i in range(end):
+            now_result = parse_date_time(reader[i])
+            if(now_result != False):
+                print("{} : {}".format(reader[i],now_result))
+
 # test = ["2020年5月10日 14時00分","2020510 14:00","2020/5/10 14:00","2020-5-10 14:00"]
-test = ["2020年5月10日 (土)14時00分","2020510 (Sat)14:00"]
-for it in test:
-    print(parse_date_time(it))
+# test = ["2020年5月10日 (土)14時00分","2020510 (Sat)14:00"]
