@@ -1,9 +1,6 @@
 from datetime import datetime
 import locale
 from pathlib import Path
-import sys
-
-import scipy as sp
 
 ########################################################
 # Get date time information
@@ -156,8 +153,7 @@ def parse_date_time(date_str):
 #   結果をどういう形にして保存するか
 
 
-test_dir_path  = "C:\\Python\\event\\supporters\\hackson\\vol_5\\Beginners\\Beginers\\result"
-
+test_dir_path = u"./Beginers/result"
 end = 10
 
 for it in Path(test_dir_path).glob("*"):
